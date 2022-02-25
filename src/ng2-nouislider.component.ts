@@ -23,6 +23,12 @@ export interface NouiFormatter {
   from(value: string): number;
 }
 
+export interface EventParameters {
+  values: any;
+  handle?: number;
+  unencoded?: number[];
+}
+
 export class DefaultFormatter implements NouiFormatter {
   to(value: number): string {
     // formatting with http://stackoverflow.com/a/26463364/478584
@@ -77,12 +83,12 @@ export class NouisliderComponent implements ControlValueAccessor, OnInit, OnChan
   @Input() public onKeydown: any;
   @Input() public formControl: FormControl;
   @Input() public tooltips: Array<any>;
-  @Output() public change: EventEmitter<any> = new EventEmitter(true);
-  @Output() public update: EventEmitter<any> = new EventEmitter(true);
-  @Output() public slide: EventEmitter<any> = new EventEmitter(true);
-  @Output() public set: EventEmitter<any> = new EventEmitter(true);
-  @Output() public start: EventEmitter<any> = new EventEmitter(true);
-  @Output() public end: EventEmitter<any> = new EventEmitter(true);
+  @Output() public change: EventEmitter<EventParameters> = new EventEmitter(true);
+  @Output() public update: EventEmitter<EventParameters> = new EventEmitter(true);
+  @Output() public slide: EventEmitter<EventParameters> = new EventEmitter(true);
+  @Output() public set: EventEmitter<EventParameters> = new EventEmitter(true);
+  @Output() public start: EventEmitter<EventParameters> = new EventEmitter(true);
+  @Output() public end: EventEmitter<EventParameters> = new EventEmitter(true);
   private value: any;
   private onChange: any = Function.prototype;
   private cleanups: VoidFunction[] = [];
@@ -146,7 +152,7 @@ export class NouisliderComponent implements ControlValueAccessor, OnInit, OnChan
     this.slider.on('update', (values: string[], handle: number, unencoded: number[]) => {
       if (this.update.observers.length > 0) {
         this.ngZone.run(() => {
-          this.update.emit(this.toValues(values));
+          this.update.emit({values: this.toValues(values), handle, unencoded});
         });
       }
     });
@@ -154,7 +160,7 @@ export class NouisliderComponent implements ControlValueAccessor, OnInit, OnChan
     this.slider.on('change', (values: string[], handle: number, unencoded: number[]) => {
       if (this.change.observers.length > 0) {
         this.ngZone.run(() => {
-          this.change.emit(this.toValues(values));
+          this.change.emit({values: this.toValues(values), handle, unencoded});
         });
       }
     });
@@ -166,7 +172,7 @@ export class NouisliderComponent implements ControlValueAccessor, OnInit, OnChan
     this.slider.on('start', (values: string[], handle: number, unencoded: number[]) => {
       if (this.start.observers.length > 0) {
         this.ngZone.run(() => {
-          this.start.emit(this.toValues(values));
+          this.start.emit({values: this.toValues(values), handle, unencoded});
         });
       }
     });
@@ -174,7 +180,7 @@ export class NouisliderComponent implements ControlValueAccessor, OnInit, OnChan
     this.slider.on('end', (values: string[], handle: number, unencoded: number[]) => {
       if (this.end.observers.length > 0) {
         this.ngZone.run(() => {
-          this.end.emit(this.toValues(values));
+          this.end.emit({values: this.toValues(values), handle, unencoded});
         });
       }
     });
